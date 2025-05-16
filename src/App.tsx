@@ -7,7 +7,7 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
-        {/* Simple header with navigation links */}
+        {/* Header */}
         <header className="bg-white shadow p-4 flex justify-center space-x-6">
           <Link
             to="/"
@@ -23,8 +23,8 @@ export default function App() {
           </Link>
         </header>
 
-        {/* Main content */}
-        <main className="p-6 max-w-4xl mx-auto">
+        {/* Full-width Main */}
+        <main className="p-6">
           <Routes>
             <Route path="/" element={<MenuListPage />} />
             <Route path="/admin" element={<AdminMenuPage />} />
