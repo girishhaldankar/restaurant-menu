@@ -4,7 +4,6 @@ import { collection, getDocs } from "firebase/firestore";
 
 const MenuListPage = () => {
   const [items, setItems] = useState([]);
-  const [filteredItems, setFilteredItems] = useState([]);
   const [category, setCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -15,28 +14,23 @@ const MenuListPage = () => {
       const snapshot = await getDocs(menuCollection);
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setItems(data);
-      setFilteredItems(data); // Initially show all
     };
     fetchItems();
   }, []);
 
-  useEffect(() => {
-    let updatedItems = [...items];
-
-    // Filter by category
-    if (category !== "All") {
-      updatedItems = updatedItems.filter(item => item.category === category);
-    }
-
-    // Filter by search
-    if (searchTerm) {
-      updatedItems = updatedItems.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    setFilteredItems(updatedItems);
-  }, [category, searchTerm, items]);
+  // Group items by category
+  const groupedItems = items
+    .filter(item => {
+      const matchCategory = category === "All" || item.category === category;
+      const matchSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase());
+      return matchCategory && matchSearch;
+    })
+    .reduce((acc, item) => {
+      const cat = item.category || "Uncategorized";
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(item);
+      return acc;
+    }, {});
 
   return (
     <div className="min-h-screen bg-gray-50 p-4">
@@ -65,24 +59,40 @@ const MenuListPage = () => {
           />
         </div>
 
-        <ul className="divide-y divide-gray-300">
-          {filteredItems.map(item => (
-            <li key={item.id} className="py-4 flex items-center space-x-4">
-              <img
-                src={item.image}
-                alt={item.name}
-                className="w-16 h-16 rounded object-cover"
-              />
-              <div className="flex-1 min-w-0">
-                <p className="text-lg font-medium text-gray-900">{item.name}</p>
-                <p className="text-sm text-gray-500 capitalize">{item.category}</p>
-              </div>
-              <div className="text-lg font-semibold text-gray-900">
-                ₹{item.price}
-              </div>
-            </li>
-          ))}
-        </ul>
+        {Object.entries(groupedItems).map(([catName, catItems]) => (
+          <div key={catName} className="mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">{catName}</h2>
+            <ul className="divide-y divide-gray-300">
+              {catItems.map(item => (
+                <li key={item.id} className="py-4 flex items-center space-x-4">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-16 h-16 rounded object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-lg font-medium text-gray-900">{item.name}</p>
+                  </div>
+                  <div className="flex items-center space-x-4">
+                    <div
+                      className={`w-3 h-3 rounded-full ${
+                        item.category === "Veg"
+                          ? "bg-green-600"
+                          : item.category === "Non-Veg"
+                          ? "bg-red-600"
+                          : "bg-gray-400"
+                      }`}
+                      title={item.category}
+                    ></div>
+                    <div className="text-lg font-semibold text-gray-900">
+                      ₹{item.price}
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
       </div>
     </div>
   );
