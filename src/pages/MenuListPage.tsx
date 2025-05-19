@@ -58,25 +58,27 @@ const MenuListPage = () => {
             onChange={e => setSearchTerm(e.target.value)}
           />
 
-          <label className="flex items-center space-x-2 cursor-pointer">
-  <span className="text-sm font-medium text-gray-700">
-    {showAC ? "AC Room Pricing" : "Non-AC Room Pricing"}
-  </span>
-  <div className="relative inline-block w-12 h-6">
-    <input
-      type="checkbox"
-      className="sr-only"
-      checked={showAC}
-      onChange={() => setShowAC(!showAC)}
-    />
-    <div className="block bg-gray-300 w-full h-full rounded-full"></div>
-    <div
-      className={`absolute left-1 top-1 w-4 h-4 rounded-full transition ${
-        showAC ? "translate-x-6 bg-blue-600" : "translate-x-0 bg-gray-500"
+          <div className="flex justify-center mb-4">
+  <div className="inline-flex rounded-full bg-gray-200 p-1 shadow-inner">
+    <button
+      onClick={() => setShowAC(false)}
+      className={`px-4 py-1 rounded-full transition font-medium ${
+        !showAC ? "bg-blue-600 text-white" : "text-gray-700"
       }`}
-    ></div>
+    >
+      Non-AC
+    </button>
+    <button
+      onClick={() => setShowAC(true)}
+      className={`px-4 py-1 rounded-full transition font-medium ${
+        showAC ? "bg-blue-600 text-white" : "text-gray-700"
+      }`}
+    >
+      AC
+    </button>
   </div>
-</label>
+</div>
+
         </div>
 
         {Object.entries(groupedItems).map(([catName, catItems]) => (
