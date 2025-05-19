@@ -6,6 +6,7 @@ const MenuListPage = () => {
   const [items, setItems] = useState([]);
   const [category, setCategory] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [showAC, setShowAC] = useState(true); // Toggle for AC/Non-AC
 
   const menuCollection = collection(db, "menuItems");
 
@@ -18,7 +19,6 @@ const MenuListPage = () => {
     fetchItems();
   }, []);
 
-  // Group items by category
   const groupedItems = items
     .filter(item => {
       const matchCategory = category === "All" || item.category === category;
@@ -57,6 +57,26 @@ const MenuListPage = () => {
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
           />
+
+          <label className="flex items-center space-x-2 cursor-pointer">
+  <span className="text-sm font-medium text-gray-700">
+    {showAC ? "AC Room Pricing" : "Non-AC Room Pricing"}
+  </span>
+  <div className="relative inline-block w-12 h-6">
+    <input
+      type="checkbox"
+      className="sr-only"
+      checked={showAC}
+      onChange={() => setShowAC(!showAC)}
+    />
+    <div className="block bg-gray-300 w-full h-full rounded-full"></div>
+    <div
+      className={`absolute left-1 top-1 w-4 h-4 rounded-full transition ${
+        showAC ? "translate-x-6 bg-blue-600" : "translate-x-0 bg-gray-500"
+      }`}
+    ></div>
+  </div>
+</label>
         </div>
 
         {Object.entries(groupedItems).map(([catName, catItems]) => (
@@ -85,7 +105,10 @@ const MenuListPage = () => {
                       title={item.category}
                     ></div>
                     <div className="text-lg font-semibold text-gray-900">
-                      ₹{item.price}
+                      ₹
+                      {showAC
+                        ? item.priceAC || item.price || "-"
+                        : item.priceNonAC || item.price || "-"}
                     </div>
                   </div>
                 </li>

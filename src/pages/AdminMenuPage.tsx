@@ -13,7 +13,8 @@ const AdminMenuPage = () => {
   const [items, setItems] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
-    price: "",
+    priceAC: "",
+    priceNonAC: "",
     category: "",
     image: "",
   });
@@ -21,7 +22,6 @@ const AdminMenuPage = () => {
 
   const menuCollection = collection(db, "menuItems");
 
-  // Fetch items
   useEffect(() => {
     const fetchItems = async () => {
       const snapshot = await getDocs(menuCollection);
@@ -34,7 +34,6 @@ const AdminMenuPage = () => {
     fetchItems();
   }, []);
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "image" && files.length > 0) {
@@ -48,10 +47,9 @@ const AdminMenuPage = () => {
     }
   };
 
-  // Add / Update item
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.price) return;
+    if (!formData.name || !formData.priceAC || !formData.priceNonAC) return;
 
     if (editItem) {
       const ref = doc(db, "menuItems", editItem.id);
@@ -67,7 +65,7 @@ const AdminMenuPage = () => {
     }));
     setItems(itemsData);
 
-    setFormData({ name: "", price: "", category: "", image: "" });
+    setFormData({ name: "", priceAC: "", priceNonAC: "", category: "", image: "" });
     setEditItem(null);
   };
 
@@ -83,7 +81,6 @@ const AdminMenuPage = () => {
     }
   };
 
-  // Group items by category
   const groupedItems = items.reduce((acc, item) => {
     const cat = item.category || "Uncategorized";
     acc[cat] = acc[cat] || [];
@@ -109,9 +106,17 @@ const AdminMenuPage = () => {
           />
           <input
             type="text"
-            name="price"
-            placeholder="Price"
-            value={formData.price}
+            name="priceAC"
+            placeholder="Price (AC Room)"
+            value={formData.priceAC}
+            onChange={handleChange}
+            className="w-full p-2 border rounded"
+          />
+          <input
+            type="text"
+            name="priceNonAC"
+            placeholder="Price (Non-AC Room)"
+            value={formData.priceNonAC}
             onChange={handleChange}
             className="w-full p-2 border rounded"
           />
@@ -170,8 +175,9 @@ const AdminMenuPage = () => {
                       {item.category}
                     </p>
                   </div>
-                  <div className="inline-flex items-center text-base font-semibold text-gray-900">
-                    ₹{item.price}
+                  <div className="text-sm text-gray-700">
+                    AC: ₹{item.priceAC}<br />
+                    Non-AC: ₹{item.priceNonAC}
                   </div>
                   <div className="flex flex-col gap-1">
                     <button
